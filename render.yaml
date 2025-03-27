@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: discord-github-quiz-bot
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: DISCORD_BOT_TOKEN
+        sync: false
+      - key: DISCORD_CLIENT_ID
+        sync: false
+      - key: DISCORD_CLIENT_SECRET
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+      - key: REDIRECT_URI
+        value: https://your-render-app-name.onrender.com/callback
+      - key: VERIFIED_ROLE_ID
+        sync: false
+      - key: VERIFICATION_CHANNEL_ID
+        sync: false
+      - key: GUILD_ID
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: PORT
+        value: 10000
