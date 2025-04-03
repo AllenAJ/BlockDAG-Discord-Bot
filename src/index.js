@@ -91,6 +91,7 @@ app.get('/health', (req, res) => {
 
 // Store verification states
 const verificationStates = new Map();
+const recentWelcomes = new Set();
 
 // Discord Bot Setup
 const client = new Client({
@@ -104,6 +105,15 @@ const client = new Client({
 // Gatekeeper for new members
 client.on('guildMemberAdd', async (member) => {
   try {
+    // Check if we've already welcomed this member recently
+    if (recentWelcomes.has(member.id)) {
+      return;
+    }
+
+    // Add to recent welcomes and set timeout to remove
+    recentWelcomes.add(member.id);
+    setTimeout(() => recentWelcomes.delete(member.id), 60000); // Remove after 1 minute
+
     // Find verification channel
     const verificationChannel = member.guild.channels.cache.get(config.verificationChannelId);
     
@@ -116,19 +126,33 @@ client.on('guildMemberAdd', async (member) => {
     const verificationLink = `https://blockdag-discord-bot.onrender.com/verify/${member.id}`;
 
     // Send verification message
-    await verificationChannel.send({
+    const welcomeMessage = await verificationChannel.send({
       content: `Welcome ${member}! 
 
 To access the server, please complete the verification process:
-Click this link to start verification: ${verificationLink}
 
 Verification steps:
 1. Login with Discord
 2. Authenticate your GitHub account
 3. Complete a short technical quiz
 4. Get access to the server channels`,
+      components: [{
+        type: 1,
+        components: [{
+          type: 2,
+          style: 5,
+          label: 'Start Verification',
+          url: verificationLink,
+          emoji: '✅'
+        }]
+      }],
       allowedMentions: { users: [member.id] }
     });
+
+    // Delete the message after 5 minutes
+    setTimeout(() => {
+      welcomeMessage.delete().catch(console.error);
+    }, 5 * 60 * 1000);
   } catch (error) {
     console.error('Error handling new member:', error);
   }
