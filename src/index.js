@@ -84,6 +84,11 @@ app.use(session({
   cookie: { secure: false } 
 }));
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // Store verification states
 const verificationStates = new Map();
 
