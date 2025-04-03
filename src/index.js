@@ -113,7 +113,7 @@ client.on('guildMemberAdd', async (member) => {
     }
 
     // Generate a unique verification link
-    const verificationLink = `http://localhost:3000/verify/${member.id}`;
+    const verificationLink = `https://blockdag-discord-bot.onrender.com/verify/${member.id}`;
 
     // Send verification message
     await verificationChannel.send({
@@ -199,7 +199,7 @@ app.get('/callback', async (req, res) => {
     const githubAuthUrl = `https://github.com/login/oauth/authorize?` +
     `client_id=${config.githubClientId}` +
     `&state=${state}` +
-    `&redirect_uri=${encodeURIComponent('http://localhost:3000/callback/github-callback')}`;
+    `&redirect_uri=${encodeURIComponent('https://blockdag-discord-bot.onrender.com/callback/github-callback')}`;
 
 
     res.redirect(githubAuthUrl);
