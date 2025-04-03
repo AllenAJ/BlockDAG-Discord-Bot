@@ -263,172 +263,253 @@ app.get('/callback/github-callback', async (req, res) => {
         <html>
         <head>
           <title>Verification Quiz</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
           <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            
             body { 
-              font-family: 'Segoe UI', Arial, sans-serif; 
-              max-width: 800px; 
-              margin: 0 auto; 
-              padding: 20px; 
+              font-family: 'Inter', sans-serif;
+              max-width: 100%;
+              min-height: 100vh;
+              margin: 0;
+              padding: 0;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background: linear-gradient(135deg, #f5f7ff 0%, #ffffff 100%);
+              color: #1a1a1a;
+            }
+
+            .container {
+              width: 90%;
+              max-width: 600px;
+              padding: 40px;
+              background: white;
+              border-radius: 24px;
+              box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+              margin: 20px;
+            }
+
+            .header {
               text-align: center;
-              line-height: 1.6;
-              background-color: #f5f5f5;
-              color: #333;
+              margin-bottom: 40px;
             }
-            .instructions {
-              background-color: white;
-              border-radius: 15px;
-              padding: 30px;
-              margin-bottom: 30px;
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-              transition: transform 0.3s ease;
-            }
-            .instructions:hover {
-              transform: translateY(-5px);
-            }
-            #start-quiz {
-              background-color: #5865F2;
-              color: white;
-              border: none;
-              padding: 15px 40px;
-              font-size: 18px;
-              cursor: pointer;
-              border-radius: 8px;
-              transition: all 0.3s ease;
+
+            h1 {
+              font-size: 2.5rem;
               font-weight: 600;
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              color: #1a1a1a;
+              margin-bottom: 16px;
+              letter-spacing: -0.02em;
             }
+
+            .subtitle {
+              font-size: 1.1rem;
+              color: #666;
+              line-height: 1.5;
+              margin-bottom: 48px;
+            }
+
+            .section {
+              margin-bottom: 40px;
+            }
+
+            h2 {
+              font-size: 1.5rem;
+              color: #5865F2;
+              margin-bottom: 24px;
+              font-weight: 600;
+              text-align: center;
+            }
+
+            .details-list {
+              list-style: none;
+              padding: 0;
+              margin: 0 auto;
+              max-width: 400px;
+            }
+
+            .details-list li {
+              display: flex;
+              align-items: center;
+              padding: 12px 0;
+              color: #4a4a4a;
+              font-size: 1.1rem;
+            }
+
+            .details-list li:before {
+              content: "";
+              display: inline-block;
+              width: 8px;
+              height: 8px;
+              background-color: #5865F2;
+              border-radius: 50%;
+              margin-right: 16px;
+            }
+
+            .rules {
+              text-align: center;
+              color: #666;
+              line-height: 1.6;
+              margin: 0 auto;
+              max-width: 480px;
+            }
+
+            #start-quiz {
+              display: block;
+              width: 200px;
+              margin: 40px auto 0;
+              padding: 16px 32px;
+              font-size: 1.1rem;
+              font-weight: 500;
+              color: white;
+              background-color: #5865F2;
+              border: none;
+              border-radius: 12px;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              box-shadow: 0 4px 12px rgba(88, 101, 242, 0.2);
+            }
+
             #start-quiz:hover {
-              background-color: #4752C4;
               transform: translateY(-2px);
-              box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+              box-shadow: 0 6px 16px rgba(88, 101, 242, 0.3);
+              background-color: #4752C4;
             }
+
             #start-quiz:active {
               transform: translateY(0);
             }
+
             #quiz-container {
               display: none;
               opacity: 0;
-              transition: opacity 0.5s ease;
+              transition: opacity 0.3s ease;
             }
+
             #quiz-container.show {
               opacity: 1;
             }
-            .question-container {
-              background-color: white;
-              border-radius: 15px;
-              padding: 30px;
+
+            .question-card {
+              background: white;
+              border-radius: 24px;
+              padding: 32px;
               margin-bottom: 20px;
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
             }
-            #question {
-              font-size: 1.5em;
-              margin-bottom: 30px;
-              color: #2C2F33;
-              font-weight: 600;
-            }
+
             #question-counter {
               color: #5865F2;
-              font-weight: 600;
-              margin-bottom: 20px;
+              font-weight: 500;
+              font-size: 1rem;
+              margin-bottom: 24px;
             }
-            .option {
-              display: block;
-              width: 100%;
-              margin: 10px 0;
-              padding: 15px;
-              background-color: #f8f9fa;
-              border: 2px solid #e9ecef;
-              border-radius: 8px;
-              cursor: pointer;
-              transition: all 0.3s ease;
-              font-size: 1.1em;
-              color: #2C2F33;
+
+            .progress-container {
+              margin: 24px 0;
             }
-            .option:hover {
-              background-color: #e9ecef;
-              transform: translateX(5px);
-            }
-            .option:active {
-              transform: translateX(0);
-            }
-            .option.selected {
-              background-color: #5865F2;
-              color: white;
-              border-color: #4752C4;
-            }
+
             .progress-bar {
               width: 100%;
-              height: 10px;
-              background-color: #e9ecef;
-              border-radius: 5px;
-              margin: 20px 0;
+              height: 8px;
+              background-color: #f0f0f0;
+              border-radius: 4px;
               overflow: hidden;
             }
+
             .progress {
               height: 100%;
               background-color: #5865F2;
               width: 0%;
               transition: width 0.3s ease;
             }
-            h1 {
-              color: #2C2F33;
-              margin-bottom: 20px;
+
+            #question {
+              font-size: 1.25rem;
+              font-weight: 600;
+              color: #1a1a1a;
+              margin-bottom: 32px;
+              line-height: 1.5;
             }
-            h2 {
-              color: #5865F2;
-              margin-top: 20px;
-            }
-            ul {
+
+            .option {
+              width: 100%;
+              padding: 16px 24px;
+              margin: 12px 0;
+              font-size: 1rem;
+              color: #4a4a4a;
+              background-color: #f8f9fa;
+              border: 2px solid #e9ecef;
+              border-radius: 12px;
+              cursor: pointer;
+              transition: all 0.2s ease;
               text-align: left;
-              margin: 20px 0;
+              font-weight: 500;
             }
-            li {
-              margin: 10px 0;
-              padding-left: 20px;
-              position: relative;
+
+            .option:hover {
+              background-color: #f0f0f0;
+              transform: translateX(4px);
             }
-            li:before {
-              content: "•";
-              color: #5865F2;
-              position: absolute;
-              left: 0;
+
+            .option.selected {
+              background-color: #5865F2;
+              color: white;
+              border-color: #4752C4;
             }
           </style>
         </head>
         <body>
-          <div class="instructions" id="instructions">
-            <h1>Server Verification Quiz</h1>
-            <p>To gain access to the server, you must complete a short technical quiz.</p>
-            
-            <h2>Quiz Details</h2>
-            <ul>
-              <li>Total Questions: 5</li>
-              <li>Passing Threshold: 4 correct answers</li>
-              <li>Topic: Technical and Programming Concepts</li>
-            </ul>
-            
-            <h2>Rules</h2>
-            <p>Read each question carefully and select the best answer. You must answer all questions to complete the verification.</p>
-            
-            <button id="start-quiz">Start Quiz</button>
-          </div>
-          
-          <div id="quiz-container">
-            <div class="question-container">
-              <p id="question-counter">Question 1 of 5</p>
-              <div class="progress-bar">
-                <div class="progress" id="progress"></div>
+          <div class="container">
+            <div class="instructions" id="instructions">
+              <div class="header">
+                <h1>Server Verification Quiz</h1>
+                <p class="subtitle">To gain access to the server, you must complete a short technical quiz.</p>
               </div>
-              <p id="question"></p>
-              <div id="options">
-                <button class="option" onclick="submitAnswer(0)">Option 1</button>
-                <button class="option" onclick="submitAnswer(1)">Option 2</button>
-                <button class="option" onclick="submitAnswer(2)">Option 3</button>
-                <button class="option" onclick="submitAnswer(3)">Option 4</button>
+
+              <div class="section">
+                <h2>Quiz Details</h2>
+                <ul class="details-list">
+                  <li>Total Questions: 5</li>
+                  <li>Passing Threshold: 4 correct answers</li>
+                  <li>Topic: Technical and Programming Concepts</li>
+                </ul>
+              </div>
+
+              <div class="section">
+                <h2>Rules</h2>
+                <p class="rules">Read each question carefully and select the best answer. You must answer all questions to complete the verification.</p>
+              </div>
+
+              <button id="start-quiz">Start Quiz</button>
+            </div>
+
+            <div id="quiz-container">
+              <div class="question-card">
+                <p id="question-counter">Question 1 of 5</p>
+                <div class="progress-container">
+                  <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                  </div>
+                </div>
+                <p id="question"></p>
+                <div id="options">
+                  <button class="option" onclick="submitAnswer(0)">Option 1</button>
+                  <button class="option" onclick="submitAnswer(1)">Option 2</button>
+                  <button class="option" onclick="submitAnswer(2)">Option 3</button>
+                  <button class="option" onclick="submitAnswer(3)">Option 4</button>
+                </div>
               </div>
             </div>
           </div>
-          
+
           <script>
           const discordId = '${verificationState.discordId}';
           const questions = ${JSON.stringify(config.quizQuestions)};
