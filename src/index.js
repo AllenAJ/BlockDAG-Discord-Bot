@@ -241,40 +241,133 @@ app.get('/callback/github-callback', async (req, res) => {
           <title>Verification Quiz</title>
           <style>
             body { 
-              font-family: Arial, sans-serif; 
-              max-width: 600px; 
+              font-family: 'Segoe UI', Arial, sans-serif; 
+              max-width: 800px; 
               margin: 0 auto; 
               padding: 20px; 
               text-align: center;
               line-height: 1.6;
+              background-color: #f5f5f5;
+              color: #333;
             }
             .instructions {
-              background-color: #f4f4f4;
-              border-radius: 10px;
-              padding: 20px;
-              margin-bottom: 20px;
+              background-color: white;
+              border-radius: 15px;
+              padding: 30px;
+              margin-bottom: 30px;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              transition: transform 0.3s ease;
+            }
+            .instructions:hover {
+              transform: translateY(-5px);
             }
             #start-quiz {
-              background-color: #4CAF50;
+              background-color: #5865F2;
               color: white;
               border: none;
-              padding: 15px 30px;
+              padding: 15px 40px;
               font-size: 18px;
               cursor: pointer;
-              border-radius: 5px;
-              transition: background-color 0.3s ease;
+              border-radius: 8px;
+              transition: all 0.3s ease;
+              font-weight: 600;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             }
             #start-quiz:hover {
-              background-color: #45a049;
+              background-color: #4752C4;
+              transform: translateY(-2px);
+              box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            }
+            #start-quiz:active {
+              transform: translateY(0);
             }
             #quiz-container {
               display: none;
+              opacity: 0;
+              transition: opacity 0.5s ease;
             }
-            button.option {
+            #quiz-container.show {
+              opacity: 1;
+            }
+            .question-container {
+              background-color: white;
+              border-radius: 15px;
+              padding: 30px;
+              margin-bottom: 20px;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            #question {
+              font-size: 1.5em;
+              margin-bottom: 30px;
+              color: #2C2F33;
+              font-weight: 600;
+            }
+            #question-counter {
+              color: #5865F2;
+              font-weight: 600;
+              margin-bottom: 20px;
+            }
+            .option {
               display: block;
               width: 100%;
               margin: 10px 0;
-              padding: 10px;
+              padding: 15px;
+              background-color: #f8f9fa;
+              border: 2px solid #e9ecef;
+              border-radius: 8px;
+              cursor: pointer;
+              transition: all 0.3s ease;
+              font-size: 1.1em;
+              color: #2C2F33;
+            }
+            .option:hover {
+              background-color: #e9ecef;
+              transform: translateX(5px);
+            }
+            .option:active {
+              transform: translateX(0);
+            }
+            .option.selected {
+              background-color: #5865F2;
+              color: white;
+              border-color: #4752C4;
+            }
+            .progress-bar {
+              width: 100%;
+              height: 10px;
+              background-color: #e9ecef;
+              border-radius: 5px;
+              margin: 20px 0;
+              overflow: hidden;
+            }
+            .progress {
+              height: 100%;
+              background-color: #5865F2;
+              width: 0%;
+              transition: width 0.3s ease;
+            }
+            h1 {
+              color: #2C2F33;
+              margin-bottom: 20px;
+            }
+            h2 {
+              color: #5865F2;
+              margin-top: 20px;
+            }
+            ul {
+              text-align: left;
+              margin: 20px 0;
+            }
+            li {
+              margin: 10px 0;
+              padding-left: 20px;
+              position: relative;
+            }
+            li:before {
+              content: "•";
+              color: #5865F2;
+              position: absolute;
+              left: 0;
             }
           </style>
         </head>
@@ -284,10 +377,10 @@ app.get('/callback/github-callback', async (req, res) => {
             <p>To gain access to the server, you must complete a short technical quiz.</p>
             
             <h2>Quiz Details</h2>
-            <ul style="list-style-type: none; padding: 0;">
-              <li>• Total Questions: 5</li>
-              <li>• Passing Threshold: 4 correct answers</li>
-              <li>• Topic: Technical and Programming Concepts</li>
+            <ul>
+              <li>Total Questions: 5</li>
+              <li>Passing Threshold: 4 correct answers</li>
+              <li>Topic: Technical and Programming Concepts</li>
             </ul>
             
             <h2>Rules</h2>
@@ -297,14 +390,18 @@ app.get('/callback/github-callback', async (req, res) => {
           </div>
           
           <div id="quiz-container">
-            <h1>Verification Quiz</h1>
-            <p id="question-counter">Question 1 of 5</p>
-            <p id="question">First Quiz Question</p>
-            <div id="options">
-              <button class="option" onclick="submitAnswer(0)">Option 1</button>
-              <button class="option" onclick="submitAnswer(1)">Option 2</button>
-              <button class="option" onclick="submitAnswer(2)">Option 3</button>
-              <button class="option" onclick="submitAnswer(3)">Option 4</button>
+            <div class="question-container">
+              <p id="question-counter">Question 1 of 5</p>
+              <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+              </div>
+              <p id="question"></p>
+              <div id="options">
+                <button class="option" onclick="submitAnswer(0)">Option 1</button>
+                <button class="option" onclick="submitAnswer(1)">Option 2</button>
+                <button class="option" onclick="submitAnswer(2)">Option 3</button>
+                <button class="option" onclick="submitAnswer(3)">Option 4</button>
+              </div>
             </div>
           </div>
           
@@ -313,15 +410,50 @@ app.get('/callback/github-callback', async (req, res) => {
           const questions = ${JSON.stringify(config.quizQuestions)};
           let currentQuestionIndex = 0;
           let correctAnswers = 0;
+          let selectedOption = null;
   
           // Start quiz button functionality
           document.getElementById('start-quiz').addEventListener('click', () => {
             document.getElementById('instructions').style.display = 'none';
-            document.getElementById('quiz-container').style.display = 'block';
+            const quizContainer = document.getElementById('quiz-container');
+            quizContainer.style.display = 'block';
+            setTimeout(() => quizContainer.classList.add('show'), 10);
+            
+            // Initialize first question
+            updateQuestion();
           });
+
+          function updateQuestion() {
+            // Update progress bar
+            const progress = (currentQuestionIndex / questions.length) * 100;
+            document.getElementById('progress').style.width = \`\${progress}%\`;
+            
+            // Update question counter
+            document.getElementById('question-counter').textContent = \`Question \${currentQuestionIndex + 1} of \${questions.length}\`;
+            
+            // Update question text
+            document.getElementById('question').textContent = questions[currentQuestionIndex].question;
+            
+            // Update options
+            const buttons = document.querySelectorAll('.option');
+            buttons.forEach((button, index) => {
+              button.textContent = questions[currentQuestionIndex].options[index];
+              button.classList.remove('selected');
+            });
+            
+            // Reset selected option
+            selectedOption = null;
+          }
   
           function submitAnswer(selectedIndex) {
+            if (selectedOption !== null) return; // Prevent multiple submissions
+            
+            selectedOption = selectedIndex;
             const currentQuestion = questions[currentQuestionIndex];
+            const buttons = document.querySelectorAll('.option');
+            
+            // Visual feedback
+            buttons[selectedIndex].classList.add('selected');
             
             if (selectedIndex === currentQuestion.correctAnswer) {
               correctAnswers++;
@@ -350,13 +482,8 @@ app.get('/callback/github-callback', async (req, res) => {
               return;
             }
   
-            // Update question
-            document.getElementById('question-counter').textContent = \`Question \${currentQuestionIndex + 1} of 5\`;
-            document.getElementById('question').textContent = questions[currentQuestionIndex].question;
-            const buttons = document.querySelectorAll('.option');
-            buttons.forEach((button, index) => {
-              button.textContent = questions[currentQuestionIndex].options[index];
-            });
+            // Update to next question after a short delay
+            setTimeout(updateQuestion, 1000);
           }
           </script>
         </body>
